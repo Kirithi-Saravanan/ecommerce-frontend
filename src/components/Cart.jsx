@@ -7,7 +7,7 @@ export default function Cart() {
   const { cart, increaseQty, decreaseQty, removeItem } =
     useContext(CartContext);
 
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("COD");
 
   const cartItems = cart.products || [];
