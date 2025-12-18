@@ -4,10 +4,13 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 export default function Orders() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState([]); // ✅ always array
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
 
+  // =========================
+  // FETCH ORDERS
+  // =========================
   const fetchOrders = async () => {
     if (!token) {
       navigate("/login");
@@ -32,6 +35,7 @@ export default function Orders() {
 
       const data = await res.json();
 
+      // ✅ HARD GUARANTEE ARRAY
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Orders fetch failed", err);
@@ -43,20 +47,27 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
+  // =========================
+  // CANCEL ORDER
+  // =========================
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Cancel this order?")) return;
 
-    await fetch(
-      `https://ecommerce-backend-zoi2.onrender.com/orders/${orderId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: token,
-        },
-      }
-    );
+    try {
+      await fetch(
+        `https://ecommerce-backend-zoi2.onrender.com/orders/${orderId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
-    fetchOrders();
+      fetchOrders();
+    } catch (err) {
+      console.error("Cancel order failed", err);
+    }
   };
 
   return (
@@ -66,7 +77,8 @@ export default function Orders() {
       <div className="flex-1 max-w-5xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold mb-8">My Orders</h1>
 
-        {orders.length === 0 ? (
+        {/* ✅ SAFE RENDER */}
+        {!Array.isArray(orders) || orders.length === 0 ? (
           <p>No orders found.</p>
         ) : (
           orders.map((order) => (
@@ -77,20 +89,18 @@ export default function Orders() {
               {/* HEADER */}
               <div className="flex justify-between mb-6">
                 <div>
-                  <p className="text-sm text-gray-500">
-                    Ordered on
-                  </p>
+                  <p className="text-sm text-gray-500">Ordered on</p>
                   <p className="font-semibold">
-                    {new Date(order.createdAt).toLocaleString()}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleString()
+                      : "—"}
                   </p>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">
-                    Order Status
-                  </p>
+                  <p className="text-sm text-gray-500">Order Status</p>
                   <p className="font-semibold text-green-700">
-                    {order.orderStatus}
+                    {order.orderStatus || "—"}
                   </p>
                 </div>
               </div>
@@ -111,9 +121,7 @@ export default function Orders() {
                     />
 
                     <div className="flex-1">
-                      <p className="font-semibold">
-                        {item.name}
-                      </p>
+                      <p className="font-semibold">{item.name}</p>
                       <p className="text-sm">
                         Rs. {item.price} × {item.quantity}
                       </p>
@@ -127,28 +135,27 @@ export default function Orders() {
 
               <hr />
 
-              {/* ADDRESS */}
+              {/* ADDRESS & PAYMENT */}
               <div className="mt-4">
                 <p>
-                  <b>Address:</b> {order.address}
+                  <b>Address:</b> {order.address || "—"}
                 </p>
                 <p>
-                  <b>Payment:</b> {order.paymentMethod} (
-                  {order.paymentStatus})
+                  <b>Payment:</b>{" "}
+                  {order.paymentMethod || "—"} (
+                  {order.paymentStatus || "—"})
                 </p>
               </div>
 
-              {/* TOTAL + CANCEL */}
+              {/* TOTAL + ACTION */}
               <div className="mt-6 flex justify-between items-center">
                 <p className="font-bold text-lg">
-                  Total: Rs. {order.totalAmount}
+                  Total: Rs. {order.totalAmount || 0}
                 </p>
 
                 {order.orderStatus === "Placed" && (
                   <button
-                    onClick={() =>
-                      cancelOrder(order._id)
-                    }
+                    onClick={() => cancelOrder(order._id)}
                     className="border border-red-500 text-red-600
                                px-6 py-2 hover:bg-red-50"
                   >
