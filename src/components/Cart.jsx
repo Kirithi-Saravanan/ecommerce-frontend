@@ -26,7 +26,7 @@ export default function Cart() {
       return;
     }
 
-    const res = await fetch("http://localhost:3000/orders", {
+    const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/cart", {
+      const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/cart", {
         headers: {
           Authorization: token,
         },
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    await fetch("http://localhost:3000/cart", {
+    await fetch("https://ecommerce-backend-zoi2.onrender.com/cart", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export const CartProvider = ({ children }) => {
   const updateQty = async (productId, change) => {
     if (!token) return;
 
-    await fetch("http://localhost:3000/cart", {
+    await fetch("hhttps://ecommerce-backend-zoi2.onrender.com/cart", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export const CartProvider = ({ children }) => {
   const removeItem = async (productId) => {
     if (!token) return;
 
-    await fetch(`http://localhost:3000/cart/${productId}`, {
+    await fetch(`https://ecommerce-backend-zoi2.onrender.com/cart/${productId}`, {
       method: "DELETE",
       headers: {
         Authorization: token,

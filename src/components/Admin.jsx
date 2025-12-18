@@ -21,7 +21,7 @@ const Admin = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/products", {
+      const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

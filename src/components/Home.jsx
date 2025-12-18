@@ -11,7 +11,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/products")
+    fetch("https://ecommerce-backend-zoi2.onrender.com")
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);

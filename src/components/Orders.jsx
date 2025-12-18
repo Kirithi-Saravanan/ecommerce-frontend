@@ -16,7 +16,7 @@ export default function Orders() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/orders", {
+      const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/orders", {
         headers: {
           Authorization: token,
         },
@@ -50,7 +50,7 @@ export default function Orders() {
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Cancel this order?")) return;
 
-    await fetch(`http://localhost:3000/orders/${orderId}`, {
+    await fetch(`https://ecommerce-backend-zoi2.onrender.com/orders/${orderId}`, {
       method: "DELETE",
       headers: {
         Authorization: token,
