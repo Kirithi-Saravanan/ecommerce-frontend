@@ -11,9 +11,19 @@ export default function Products() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://ecommerce-backend-zoi2.onrender.com")
+    fetch("https://ecommerce-backend-zoi2.onrender.com/products")
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch products", err);
+        setProducts([]);
+      });
   }, []);
 
   const handleAddToCart = async (productId) => {
