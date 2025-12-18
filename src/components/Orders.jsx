@@ -9,20 +9,21 @@ export default function Orders() {
   const token = sessionStorage.getItem("token");
 
   const fetchOrders = async () => {
-    // 🔐 If not logged in → login
     if (!token) {
       navigate("/login");
       return;
     }
 
     try {
-      const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/orders", {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const res = await fetch(
+        "https://ecommerce-backend-zoi2.onrender.com/orders",
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
-      // 🔴 Token expired / invalid
       if (res.status === 401) {
         sessionStorage.clear();
         navigate("/login");
@@ -31,12 +32,7 @@ export default function Orders() {
 
       const data = await res.json();
 
-      // ✅ Always ensure array
-      if (Array.isArray(data)) {
-        setOrders(data);
-      } else {
-        setOrders([]);
-      }
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Orders fetch failed", err);
       setOrders([]);
@@ -50,12 +46,15 @@ export default function Orders() {
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Cancel this order?")) return;
 
-    await fetch(`https://ecommerce-backend-zoi2.onrender.com/orders/${orderId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-      },
-    });
+    await fetch(
+      `https://ecommerce-backend-zoi2.onrender.com/orders/${orderId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
 
     fetchOrders();
   };
@@ -99,31 +98,32 @@ export default function Orders() {
               <hr />
 
               {/* ITEMS */}
-              {order.items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-6 py-6"
-                >
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-28 h-40 object-cover border"
-                  />
+              {Array.isArray(order.items) &&
+                order.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-6 py-6"
+                  >
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="w-28 h-40 object-cover border"
+                    />
 
-                  <div className="flex-1">
+                    <div className="flex-1">
+                      <p className="font-semibold">
+                        {item.name}
+                      </p>
+                      <p className="text-sm">
+                        Rs. {item.price} × {item.quantity}
+                      </p>
+                    </div>
+
                     <p className="font-semibold">
-                      {item.name}
-                    </p>
-                    <p className="text-sm">
-                      Rs. {item.price} × {item.quantity}
+                      Rs. {item.price * item.quantity}
                     </p>
                   </div>
-
-                  <p className="font-semibold">
-                    Rs. {item.price * item.quantity}
-                  </p>
-                </div>
-              ))}
+                ))}
 
               <hr />
 
