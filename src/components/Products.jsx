@@ -11,7 +11,7 @@ export default function Products() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("hhttps://ecommerce-backend-zoi2.onrender.com")
+    fetch("https://ecommerce-backend-zoi2.onrender.com")
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
