@@ -3,7 +3,8 @@ import { createContext, useEffect, useState } from "react";
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState({ products: [] });
+  // ✅ cart is an ARRAY (so .map() always works)
+  const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const token = sessionStorage.getItem("token");
@@ -13,29 +14,35 @@ export const CartProvider = ({ children }) => {
   // =========================
   const fetchCart = async () => {
     if (!token) {
-      setCart({ products: [] });
+      setCart([]);
       setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch("https://ecommerce-backend-zoi2.onrender.com/cart", {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const res = await fetch(
+        "https://ecommerce-backend-zoi2.onrender.com/cart",
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
       if (res.status === 401) {
         sessionStorage.clear();
-        setCart({ products: [] });
+        setCart([]);
+        setLoading(false);
         return;
       }
 
       const data = await res.json();
-      setCart(data);
+
+      // ✅ backend returns { products: [...] }
+      setCart(Array.isArray(data.products) ? data.products : []);
     } catch (err) {
       console.error("Cart fetch failed", err);
-      setCart({ products: [] });
+      setCart([]);
     } finally {
       setLoading(false);
     }
@@ -54,34 +61,48 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    await fetch("https://ecommerce-backend-zoi2.onrender.com/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-      body: JSON.stringify({ productId }),
-    });
+    try {
+      await fetch(
+        "https://ecommerce-backend-zoi2.onrender.com/cart",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({ productId }),
+        }
+      );
 
-    fetchCart();
+      fetchCart();
+    } catch (err) {
+      console.error("Add to cart failed", err);
+    }
   };
 
   // =========================
-  // UPDATE QTY
+  // UPDATE QUANTITY
   // =========================
   const updateQty = async (productId, change) => {
     if (!token) return;
 
-    await fetch("hhttps://ecommerce-backend-zoi2.onrender.com/cart", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-      body: JSON.stringify({ productId, change }),
-    });
+    try {
+      await fetch(
+        "https://ecommerce-backend-zoi2.onrender.com/cart",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({ productId, change }),
+        }
+      );
 
-    fetchCart();
+      fetchCart();
+    } catch (err) {
+      console.error("Update quantity failed", err);
+    }
   };
 
   // =========================
@@ -90,20 +111,27 @@ export const CartProvider = ({ children }) => {
   const removeItem = async (productId) => {
     if (!token) return;
 
-    await fetch(`https://ecommerce-backend-zoi2.onrender.com/cart/${productId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-      },
-    });
+    try {
+      await fetch(
+        `https://ecommerce-backend-zoi2.onrender.com/cart/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
-    fetchCart();
+      fetchCart();
+    } catch (err) {
+      console.error("Remove item failed", err);
+    }
   };
 
   return (
     <CartContext.Provider
       value={{
-        cart,
+        cart,          // ✅ array → safe to do cart.map()
         loading,
         addToCart,
         increaseQty: (id) => updateQty(id, 1),
